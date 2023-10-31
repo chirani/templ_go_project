@@ -1,0 +1,69 @@
+package views
+import "github.com/chirani/templ_go_project/controllers"
+import "strconv"
+
+templ Home(todos []controllers.Todo){
+    <!doctype html>
+    <html class="bg-gray-900">
+        @head()
+        <body>
+            @header()
+            <section class="flex flex-col items-center mx-auto max-w-[500px]">
+                @form()
+                <div id="results-box" class="my-4 self-stretch">
+                @TodoList(todos)
+                </div>
+            </section>
+        </body>
+    </html>
+}
+
+templ head(){
+    <head>
+        <title>My todo list</title>
+        <script src="https://unpkg.com/htmx.org@1.9.5" type="text/javascript"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+}
+
+templ header(){
+    <header class="bg-teal-800">
+        <div class="max-w-[1200px] p-6 mx-auto"></div>
+    </header>
+}
+
+templ form(){
+    <form id="todo-form" class="flex flex-col gap-3 max-w-[400px] mx-auto" hx-post="/todo" hx-trigger="submit" hx-target="#results-box">
+    <h3 class="text-3xl text-zinc-50 my-3">Add a New Todo to your list</h3>
+    <div class="flex flex-col gap-1">
+        <label for="fname" class="text-zinc-50">Title</label>
+        <input placeholder="Clean the living room"  class="p-2 px-4 bg-zinc-200" type="text" id="fname" name="title" />
+    </div>  
+    <div class="flex flex-col gap-1">
+        <label for="lname" class="text-zinc-50">Details</label>
+        <textarea placeholder="Because the in-laws are coming" class="p-2 px-4 bg-zinc-200" type="textarea" id="lname" name="details" />
+    </div>  
+        <input class="btn p-3 px-6 bg-teal-600 text-white hover:opacity-60" type="submit" value="Submit" form="todo-form"/>
+    </form> 
+}
+
+templ TodoList(todos []controllers.Todo){
+    <div class="mx-auto self-stretch"> 
+        
+        for _, todo := range todos {
+            <div class="bg-zinc-50 p-3 mb-3 rounded-md">
+                <h3 class="text-xl">{ todo.Title }</h3>
+                <hr/>
+                <p>{ todo.Details }</p>
+                <button
+                    class="hover:opacity-70 text-red-600 border-red-500 border-4 font-medium mt-2 px-4 py-2" 
+                    hx-delete={templ.EscapeString("/todo/"+ strconv.FormatUint(todo.Id, 10))}
+                    hx-target="#results-box"
+                    hx-trigger="click"
+                    >
+                        DELETE
+                </button>
+            </div>
+        }
+    </div>
+}
